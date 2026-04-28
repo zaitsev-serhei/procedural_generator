@@ -1,4 +1,9 @@
 package com.procedural_generator.algorithm.cellular;
 
-public class CellularParams {
+public record CellularParams(
+        double fillProbability,
+        int iterations,
+        int birthLimit,
+        int deathLimit
+) {
 }

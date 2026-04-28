@@ -1,4 +1,10 @@
 package com.procedural_generator.algorithm.bsp;
 
-public class BspParams {
+public record BspParams(
+        int roomCount,
+        int minRoomSize,
+        int maxRoomSize,
+        int corridorWidth,
+        double splitRatio
+) {
 }

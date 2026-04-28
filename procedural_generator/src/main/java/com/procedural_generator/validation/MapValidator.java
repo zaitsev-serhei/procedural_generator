@@ -1,4 +1,7 @@
 package com.procedural_generator.validation;
 
-public class MapValidator {
+import com.procedural_generator.domain.model.MapGeneration;
+
+public interface MapValidator {
+    void validate(MapGeneration mapGeneration);
 }

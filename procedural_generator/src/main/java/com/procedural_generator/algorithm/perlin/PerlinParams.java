@@ -1,4 +1,10 @@
 package com.procedural_generator.algorithm.perlin;
 
-public class PerlinParams {
+public record PerlinParams(
+        int octaves,
+        double persistence,
+        double lacunarity,
+        double scale,
+        double[] thresholds
+) {
 }

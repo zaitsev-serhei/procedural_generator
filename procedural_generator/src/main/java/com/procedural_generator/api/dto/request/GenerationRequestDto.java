@@ -1,4 +1,25 @@
 package com.procedural_generator.api.dto.request;
 
-public class GenerationRequestDto {
+import com.procedural_generator.domain.enums.AlgorithmType;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+public record GenerationRequestDto(
+        @NotNull
+        AlgorithmType algorithmType,
+
+        @NotNull
+        Long seed,
+
+        @Min(10)
+        int width,
+
+        @Min(10)
+        int height,
+
+        @Valid
+        @NotNull
+        AlgorithmParamsDto algorithmParams
+) {
 }

@@ -1,4 +1,7 @@
 package com.procedural_generator.api.dto.response;
 
-public class TileTypeDto {
+public record TileTypeDto(
+        int code,
+        String name
+) {
 }

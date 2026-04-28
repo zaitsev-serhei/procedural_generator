@@ -1,4 +1,7 @@
 package com.procedural_generator.api.dto.response;
 
-public class ConnectionDto {
+public record ConnectionDto(
+        int fromIndex,
+        int toIndex
+) {
 }

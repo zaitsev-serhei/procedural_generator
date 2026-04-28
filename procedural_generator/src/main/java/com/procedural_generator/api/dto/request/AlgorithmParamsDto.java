@@ -1,4 +1,11 @@
 package com.procedural_generator.api.dto.request;
 
-public class AlgorithmParamsDto {
+import jakarta.validation.constraints.NotNull;
+
+import java.util.Map;
+
+public record AlgorithmParamsDto(
+        @NotNull
+        Map<String, Object> params
+) {
 }

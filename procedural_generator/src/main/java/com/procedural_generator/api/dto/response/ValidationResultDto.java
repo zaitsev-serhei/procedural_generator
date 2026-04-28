@@ -1,4 +1,9 @@
 package com.procedural_generator.api.dto.response;
 
-public class ValidationResultDto {
+import java.util.List;
+
+public record ValidationResultDto(
+        boolean valid,
+        List<String> errors
+) {
 }
