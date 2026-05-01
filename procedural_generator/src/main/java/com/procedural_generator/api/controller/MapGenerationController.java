@@ -10,6 +10,9 @@ import com.procedural_generator.domain.model.MapGeneration;
 import com.procedural_generator.domain.model.MapRoom;
 import com.procedural_generator.service.MapGenerationService;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/maps")
 public class MapGenerationController {
@@ -30,8 +35,8 @@ public class MapGenerationController {
 
     @PostMapping("/generate")
     public MapResponseDto generate(@RequestBody @Valid GenerationRequestDto request) {
-
-        Map<String, Object> params = request.algorithmParams().params();
+        System.out.println(request);
+        Map<String, Object> params = request.params();
 
         MapGeneration generation = mapGenerationService.generate(
                 request.algorithmType(),
@@ -43,6 +48,7 @@ public class MapGenerationController {
 
         return toResponseDto(generation);
     }
+
 
     private MapResponseDto toResponseDto(MapGeneration generation) {
 
@@ -71,6 +77,7 @@ public class MapGenerationController {
                 metadata
         );
     }
+
 
     private RoomDto toRoomDto(MapRoom room) {
         return new RoomDto(

@@ -1,18 +1,17 @@
 package com.procedural_generator.persistence.entity;
 
-import com.procedural_generator.domain.enums.AlgorithmType;
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "map_generations")
+@DynamicInsert
 @Getter
 @Setter
 @NoArgsConstructor
@@ -36,8 +35,9 @@ public class MapGenerationEntity {
     @Column(nullable = false)
     private int height;
 
-    @Column(columnDefinition = "jsonb", nullable = false)
-    private String tiles;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "tiles", columnDefinition = "jsonb")
+    private int[][] tiles;
 
     @Column(nullable = false)
     private int iterations;
@@ -47,9 +47,6 @@ public class MapGenerationEntity {
 
     @PrePersist
     void prePersist() {
-        if (id == null) {
-            id = UUID.randomUUID();
-        }
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }

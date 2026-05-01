@@ -5,6 +5,7 @@ import com.procedural_generator.domain.port.MapGenerationRepository;
 import com.procedural_generator.persistence.entity.MapConnectionEntity;
 import com.procedural_generator.persistence.entity.MapGenerationEntity;
 import com.procedural_generator.persistence.entity.MapRoomEntity;
+import com.procedural_generator.persistence.mapper.MapGenerationMapper;
 import com.procedural_generator.persistence.repository.MapConnectionJpaRepository;
 import com.procedural_generator.persistence.repository.MapGenerationJpaRepository;
 import com.procedural_generator.persistence.repository.MapRoomJpaRepository;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -21,15 +23,18 @@ public class MapGenerationRepositoryAdapter implements MapGenerationRepository {
     private final MapGenerationJpaRepository generationRepo;
     private final MapRoomJpaRepository roomRepo;
     private final MapConnectionJpaRepository connectionRepo;
+    private final MapGenerationMapper generationMapper;
 
     public MapGenerationRepositoryAdapter(
             MapGenerationJpaRepository generationRepo,
             MapRoomJpaRepository roomRepo,
-            MapConnectionJpaRepository connectionRepo
+            MapConnectionJpaRepository connectionRepo,
+            MapGenerationMapper generationMapper
     ) {
         this.generationRepo = generationRepo;
         this.roomRepo = roomRepo;
         this.connectionRepo = connectionRepo;
+        this.generationMapper = generationMapper;
     }
 
     @Override
@@ -42,7 +47,7 @@ public class MapGenerationRepositoryAdapter implements MapGenerationRepository {
                         .seed(mapGeneration.getSeed())
                         .width(mapGeneration.getWidth())
                         .height(mapGeneration.getHeight())
-                        .tiles(serializeTiles(mapGeneration.getTiles()))
+                        .tiles(mapGeneration.getTiles())
                         .iterations(mapGeneration.getIterations())
                         .createdAt(mapGeneration.getCreatedAt())
                         .build()
@@ -71,12 +76,13 @@ public class MapGenerationRepositoryAdapter implements MapGenerationRepository {
 
         connectionRepo.saveAll(connectionEntities);
 
-        return mapGeneration;
+        return generationMapper.toDomain(saved);
     }
 
     @Override
-    public MapGeneration findById(UUID id) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public Optional<MapGeneration> findById(UUID id) {
+        return generationRepo.findById(id)
+                .map(generationMapper::toDomain);
     }
 
     @Override

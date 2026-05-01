@@ -31,7 +31,7 @@ public class MapGenerationMapper {
                 entity.getSeed(),
                 entity.getWidth(),
                 entity.getHeight(),
-                parseTiles(entity.getTiles()),
+                entity.getTiles(),
                 List.of(),
                 List.of(),
                 entity.getIterations(),
@@ -50,7 +50,7 @@ public class MapGenerationMapper {
         entity.setSeed(domain.getSeed());
         entity.setWidth(domain.getWidth());
         entity.setHeight(domain.getHeight());
-        entity.setTiles(writeJson(domain.getTiles()));
+        entity.setTiles(domain.getTiles());
         entity.setIterations(domain.getIterations());
         entity.setCreatedAt(domain.getCreatedAt());
 
@@ -79,7 +79,7 @@ public class MapGenerationMapper {
                 entity.getSeed(),
                 entity.getWidth(),
                 entity.getHeight(),
-                parseTiles(entity.getTiles()),
+                entity.getTiles(),
                 rooms == null ? List.of() : rooms,
                 connections == null ? List.of() : connections,
                 entity.getIterations(),

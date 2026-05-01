@@ -5,12 +5,13 @@ import com.procedural_generator.persistence.entity.MapGenerationEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MapGenerationRepository {
     MapGeneration save(MapGeneration mapGeneration);
 
-    MapGeneration findById(UUID id);
+    Optional<MapGeneration> findById(UUID id);
 
     Page<MapGenerationEntity> findAll(Pageable pageable);
 }

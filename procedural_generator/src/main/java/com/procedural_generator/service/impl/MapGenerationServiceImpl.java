@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class MapGenerationServiceImpl implements MapGenerationService {
@@ -40,13 +39,17 @@ public class MapGenerationServiceImpl implements MapGenerationService {
             Map<String, Object> params
     ) {
         int maxAttempts = 5;
-        int attempt = 0;
 
-        while (attempt < maxAttempts) {
-            GenerationAlgorithm algorithm = algorithmRegistry.get(algorithmType);
+        GenerationAlgorithm algorithm = algorithmRegistry.get(algorithmType);
+
+        RuntimeException lastException = null;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++) {
+
+            long currentSeed = seed + attempt; // 🔥 важливо
 
             GenerationContext context = new GenerationContext(
-                    seed,
+                    currentSeed,
                     width,
                     height,
                     params
@@ -55,9 +58,9 @@ public class MapGenerationServiceImpl implements MapGenerationService {
             GenerationResult result = algorithm.generate(context);
 
             MapGeneration mapGeneration = new MapGeneration(
-                    UUID.randomUUID(),
+                    null,
                     algorithmType,
-                    seed,
+                    currentSeed,
                     width,
                     height,
                     result.tiles(),
@@ -66,13 +69,24 @@ public class MapGenerationServiceImpl implements MapGenerationService {
                     result.iterations(),
                     LocalDateTime.now()
             );
+
             try {
                 validator.validate(mapGeneration);
+
+                System.out.println("✅ Map valid on attempt " + (attempt + 1));
+
                 return repository.save(mapGeneration);
+
             } catch (Exception e) {
-                attempt++;
+                lastException = new RuntimeException("Attempt " + (attempt + 1) + " failed: " + e.getMessage(), e);
+
+                System.out.println("❌ Attempt " + (attempt + 1) + " failed: " + e.getMessage());
             }
         }
-        throw new RuntimeException("Failed to generate valid map after " + maxAttempts + " attempts");
+
+        throw new RuntimeException(
+                "Failed to generate valid map after " + maxAttempts + " attempts",
+                lastException
+        );
     }
 }

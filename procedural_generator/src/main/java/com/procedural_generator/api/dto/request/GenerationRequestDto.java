@@ -5,6 +5,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Map;
+
 public record GenerationRequestDto(
         @NotNull
         AlgorithmType algorithmType,
@@ -18,8 +20,7 @@ public record GenerationRequestDto(
         @Min(10)
         int height,
 
-        @Valid
         @NotNull
-        AlgorithmParamsDto algorithmParams
+        Map<String, Object> params
 ) {
 }

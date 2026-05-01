@@ -48,13 +48,30 @@ public class BspAlgorithm implements GenerationAlgorithm {
     }
 
     private BspParams mapParams(Map<String, Object> params) {
+
+        int roomCount = getInt(params, "roomCount", 10);
+        int minRoomSize = getInt(params, "minRoomSize", 5);
+        int maxRoomSize = getInt(params, "maxRoomSize", 15);
+        int corridorWidth = getInt(params, "corridorWidth", 2);
+        double splitRatio = getDouble(params, "splitRatio", 0.5);
+
         return new BspParams(
-                ((Number) params.get("roomCount")).intValue(),
-                ((Number) params.get("minRoomSize")).intValue(),
-                ((Number) params.get("maxRoomSize")).intValue(),
-                ((Number) params.get("corridorWidth")).intValue(),
-                ((Number) params.get("splitRatio")).doubleValue()
+                roomCount,
+                minRoomSize,
+                maxRoomSize,
+                corridorWidth,
+                splitRatio
         );
+    }
+
+    private int getInt(Map<String, Object> map, String key, int defaultValue) {
+        Object val = map.get(key);
+        return val != null ? ((Number) val).intValue() : defaultValue;
+    }
+
+    private double getDouble(Map<String, Object> map, String key, double defaultValue) {
+        Object val = map.get(key);
+        return val != null ? ((Number) val).doubleValue() : defaultValue;
     }
 
     private int[][] initializeTiles(int width, int height) {
