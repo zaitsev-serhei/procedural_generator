@@ -59,14 +59,26 @@ public class PerlinNoiseAlgorithm implements GenerationAlgorithm {
 
     private PerlinParams mapParams(Map<String, Object> params) {
 
+        int octaves = getInt(params, "octaves", 4);
+        double persistence = getDouble(params, "persistence", 0.5);
+        double lacunarity = getDouble(params, "lacunarity", 2.0);
+        double scale = getDouble(params, "scale", 32.0);
+
         return new PerlinParams(
-                (int) params.getOrDefault("octaves", 4),
-                (double) params.getOrDefault("persistence", 0.5),
-                (double) params.getOrDefault("lacunarity", 2.0),
-                (double) params.getOrDefault("scale", 32.0),
-                new double[]{
-                        0.3, 0.5, 0.7
-                }
+                octaves,
+                persistence,
+                lacunarity,
+                scale,
+                new double[]{0.3, 0.5, 0.7}
         );
+    }
+    private int getInt(Map<String, Object> map, String key, int defaultValue) {
+        Object val = map.get(key);
+        return val instanceof Number ? ((Number) val).intValue() : defaultValue;
+    }
+
+    private double getDouble(Map<String, Object> map, String key, double defaultValue) {
+        Object val = map.get(key);
+        return val instanceof Number ? ((Number) val).doubleValue() : defaultValue;
     }
 }

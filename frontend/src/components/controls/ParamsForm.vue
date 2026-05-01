@@ -1,38 +1,30 @@
 <template>
-  <div class="flex flex-wrap gap-3">
-
-    <!-- WIDTH / HEIGHT -->
-    <div>
-      <label>Width</label>
-      <input type="number" v-model.number="local.width" class="input" />
-    </div>
-
-    <div>
-      <label>Height</label>
-      <input type="number" v-model.number="local.height" class="input" />
-    </div>
-
-    <!-- DYNAMIC PARAMS -->
+  <div class="space-y-3">
     <div
       v-for="field in schema"
       :key="field.key"
     >
-      <label>{{ field.label }}</label>
+      <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">{{ field.label }}</label>
 
-      <!-- NUMBER -->
       <input
         v-if="field.type === 'number'"
         type="number"
         :step="field.step || 1"
         v-model.number="local.params[field.key]"
-        class="input"
+        class="w-full h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
       />
 
-      <!-- SELECT -->
+      <input
+        v-else-if="field.type === 'text'"
+        type="text"
+        v-model="local.params[field.key]"
+        class="w-full h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+      />
+
       <select
         v-else-if="field.type === 'select'"
         v-model="local.params[field.key]"
-        class="input"
+        class="w-full h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
       >
         <option
           v-for="opt in field.options"
@@ -42,9 +34,7 @@
           {{ opt }}
         </option>
       </select>
-
     </div>
-
   </div>
 </template>
 
@@ -114,11 +104,3 @@ watch(
   { deep: true }
 );
 </script>
-
-<style scoped>
-.input {
-  background: #1f2937;
-  padding: 6px;
-  border-radius: 4px;
-}
-</style>
