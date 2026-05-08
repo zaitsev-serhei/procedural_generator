@@ -1,5 +1,6 @@
 package com.procedural_generator.validation.impl;
 
+import com.procedural_generator.domain.enums.AlgorithmType;
 import com.procedural_generator.domain.enums.TileType;
 import com.procedural_generator.domain.model.MapGeneration;
 import com.procedural_generator.validation.MapValidator;
@@ -33,5 +34,10 @@ public class TileIntegrityValidator implements MapValidator {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean supports(AlgorithmType type) {
+        return true;
     }
 }

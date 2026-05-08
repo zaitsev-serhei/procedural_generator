@@ -2,6 +2,8 @@ package com.procedural_generator.algorithm.wfc;
 
 import com.procedural_generator.domain.model.WfcTileset;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -17,111 +19,120 @@ public class WfcBacktracker {
             int maxRetries,
             long seed
     ) {
-        IllegalStateException lastException = null;
+
+        Exception last = null;
 
         for (int attempt = 0; attempt < maxRetries; attempt++) {
             try {
-                return runAttempt(width, height, rules, new Random(seed + attempt));
-            } catch (IllegalStateException ex) {
-                lastException = ex;
+                return run(width, height, rules, new Random(seed + attempt));
+            } catch (Exception e) {
+                last = e;
             }
         }
 
-        throw new IllegalStateException("WFC failed after retries", lastException);
+        throw new IllegalStateException("WFC failed after retries", last);
     }
 
-    private int[][] runAttempt(
+    private int[][] run(
             int width,
             int height,
             Map<Integer, WfcTileset.Rule> rules,
             Random random
     ) {
+
         Set<Integer> allTiles = rules.keySet();
+
         if (allTiles.isEmpty()) {
             throw new IllegalStateException("Tileset rules are empty");
         }
 
-        WfcCell[][] grid = new WfcCell[height][width];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                grid[y][x] = new WfcCell(allTiles);
-            }
-        }
+        // 🧠 STEP 1: INIT GRID (SUPERPOSITION)
+        WfcCell[][] grid = initGrid(width, height, allTiles);
 
         while (true) {
-            int[] nextCell = findNextCell(grid, random);
-            if (nextCell == null) {
-                return finalizeTiles(grid);
+
+            // 🧠 STEP 2: FIND LOWEST ENTROPY CELL
+            int[] cell = findLowestEntropy(grid, random);
+
+            if (cell == null) {
+                return finalize(grid);
             }
 
-            int x = nextCell[0];
-            int y = nextCell[1];
-            int pickedTile = pickRandom(grid[y][x], random);
-            grid[y][x].collapseTo(pickedTile);
+            int x = cell[0];
+            int y = cell[1];
 
-            boolean consistent = propagator.propagate(grid, x, y, rules);
-            if (!consistent) {
-                throw new IllegalStateException("Contradiction found during propagation");
+            // 🧠 STEP 3: COLLAPSE
+            int chosen = pick(grid[y][x], random);
+            grid[y][x].collapseTo(chosen);
+
+            // 🧠 STEP 4: PROPAGATE
+            boolean ok = propagator.propagate(grid, x, y, rules);
+
+            if (!ok) {
+                throw new IllegalStateException("Contradiction");
             }
         }
     }
 
-    private int[] findNextCell(WfcCell[][] grid, Random random) {
-        int bestEntropy = Integer.MAX_VALUE;
-        int bestX = -1;
-        int bestY = -1;
+    private WfcCell[][] initGrid(int w, int h, Set<Integer> tiles) {
+
+        WfcCell[][] grid = new WfcCell[h][w];
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                grid[y][x] = new WfcCell(tiles);
+            }
+        }
+
+        return grid;
+    }
+
+    private int[] findLowestEntropy(WfcCell[][] grid, Random r) {
+
+        int best = Integer.MAX_VALUE;
+        int bx = -1, by = -1;
 
         for (int y = 0; y < grid.length; y++) {
             for (int x = 0; x < grid[0].length; x++) {
-                WfcCell cell = grid[y][x];
-                if (cell.isCollapsed()) {
-                    continue;
-                }
 
-                int entropy = cell.entropy();
-                if (entropy < bestEntropy || (entropy == bestEntropy && random.nextBoolean())) {
-                    bestEntropy = entropy;
-                    bestX = x;
-                    bestY = y;
+                WfcCell c = grid[y][x];
+
+                if (c.isCollapsed()) continue;
+
+                int e = c.entropy();
+
+                if (e < best || (e == best && r.nextBoolean())) {
+                    best = e;
+                    bx = x;
+                    by = y;
                 }
             }
         }
 
-        if (bestX == -1) {
-            return null;
-        }
-
-        return new int[]{bestX, bestY};
+        return bx == -1 ? null : new int[]{bx, by};
     }
 
-    private int pickRandom(WfcCell cell, Random random) {
-        int targetIndex = random.nextInt(cell.getPossibleTiles().size());
-        int index = 0;
+    private int pick(WfcCell cell, Random r) {
 
-        for (int tile : cell.getPossibleTiles()) {
-            if (index == targetIndex) {
-                return tile;
-            }
-            index++;
-        }
-
-        throw new IllegalStateException("No tile selected");
+        List<Integer> list = new ArrayList<>(cell.getPossibleTiles());
+        return list.get(r.nextInt(list.size()));
     }
 
-    private int[][] finalizeTiles(WfcCell[][] grid) {
-        int height = grid.length;
-        int width = grid[0].length;
-        int[][] tiles = new int[height][width];
+    private int[][] finalize(WfcCell[][] grid) {
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        int[][] out = new int[grid.length][grid[0].length];
+
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[0].length; x++) {
+
                 if (!grid[y][x].isCollapsed()) {
-                    throw new IllegalStateException("Grid has uncollapsed cells");
+                    throw new IllegalStateException("Uncollapsed cell");
                 }
-                tiles[y][x] = grid[y][x].collapsedTile();
+
+                out[y][x] = grid[y][x].collapsedTile();
             }
         }
 
-        return tiles;
+        return out;
     }
 }

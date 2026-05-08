@@ -3,6 +3,7 @@ package com.procedural_generator.algorithm.wfc;
 import com.procedural_generator.domain.model.WfcTileset;
 
 import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,90 +12,89 @@ import java.util.Set;
 
 public class WfcPropagator {
 
+    private static final int[][] DIRS = {
+            {0, -1}, // up
+            {0, 1},  // down
+            {-1, 0}, // left
+            {1, 0}   // right
+    };
+
     public boolean propagate(
             WfcCell[][] grid,
-            int startX,
-            int startY,
+            int x,
+            int y,
             Map<Integer, WfcTileset.Rule> rules
     ) {
-        Queue<int[]> queue = new ArrayDeque<>();
-        queue.add(new int[]{startX, startY});
 
-        while (!queue.isEmpty()) {
-            int[] pos = queue.poll();
-            int x = pos[0];
-            int y = pos[1];
+        Deque<int[]> stack = new ArrayDeque<>();
+        stack.push(new int[]{x, y});
 
-            if (updateNeighbor(grid, x, y, x, y - 1, "up", rules)) {
-                if (grid[y - 1][x].entropy() == 0) {
+        while (!stack.isEmpty()) {
+
+            int[] c = stack.pop();
+
+            int cx = c[0];
+            int cy = c[1];
+
+            for (int d = 0; d < 4; d++) {
+
+                int nx = cx + DIRS[d][0];
+                int ny = cy + DIRS[d][1];
+
+                if (!inBounds(grid, nx, ny)) continue;
+
+                WfcCell current = grid[cy][cx];
+                WfcCell neighbor = grid[ny][nx];
+
+                if (neighbor.isCollapsed()) continue;
+
+                Set<Integer> allowed = computeAllowed(current, rules, d);
+
+                int before = neighbor.entropy();
+                neighbor.removeImpossible(allowed);
+
+                if (neighbor.getPossibleTiles().isEmpty()) {
                     return false;
                 }
-                queue.add(new int[]{x, y - 1});
-            }
 
-            if (updateNeighbor(grid, x, y, x, y + 1, "down", rules)) {
-                if (grid[y + 1][x].entropy() == 0) {
-                    return false;
+                if (neighbor.entropy() < before) {
+                    stack.push(new int[]{nx, ny});
                 }
-                queue.add(new int[]{x, y + 1});
-            }
-
-            if (updateNeighbor(grid, x, y, x - 1, y, "left", rules)) {
-                if (grid[y][x - 1].entropy() == 0) {
-                    return false;
-                }
-                queue.add(new int[]{x - 1, y});
-            }
-
-            if (updateNeighbor(grid, x, y, x + 1, y, "right", rules)) {
-                if (grid[y][x + 1].entropy() == 0) {
-                    return false;
-                }
-                queue.add(new int[]{x + 1, y});
             }
         }
 
         return true;
     }
 
-    private boolean updateNeighbor(
-            WfcCell[][] grid,
-            int sourceX,
-            int sourceY,
-            int targetX,
-            int targetY,
-            String direction,
-            Map<Integer, WfcTileset.Rule> rules
+    private Set<Integer> computeAllowed(
+            WfcCell cell,
+            Map<Integer, WfcTileset.Rule> rules,
+            int dir
     ) {
-        if (targetY < 0 || targetY >= grid.length || targetX < 0 || targetX >= grid[0].length) {
-            return false;
-        }
-
-        WfcCell sourceCell = grid[sourceY][sourceX];
-        WfcCell targetCell = grid[targetY][targetX];
 
         Set<Integer> allowed = new HashSet<>();
-        for (int sourceTile : sourceCell.getPossibleTiles()) {
-            WfcTileset.Rule rule = rules.get(sourceTile);
-            if (rule == null) {
-                continue;
-            }
 
-            List<Integer> directionalAllowed = switch (direction) {
-                case "up" -> rule.up();
-                case "down" -> rule.down();
-                case "left" -> rule.left();
-                case "right" -> rule.right();
+        for (int tile : cell.getPossibleTiles()) {
+
+            WfcTileset.Rule rule = rules.get(tile);
+            if (rule == null) continue;
+
+            List<Integer> values = switch (dir) {
+                case 0 -> rule.up();
+                case 1 -> rule.down();
+                case 2 -> rule.left();
+                case 3 -> rule.right();
                 default -> List.of();
             };
 
-            allowed.addAll(directionalAllowed);
+            allowed.addAll(values);
         }
 
-        if (allowed.isEmpty()) {
-            return false;
-        }
+        return allowed;
+    }
 
-        return targetCell.constrain(allowed);
+    private boolean inBounds(WfcCell[][] grid, int x, int y) {
+        return y >= 0 && y < grid.length &&
+                x >= 0 && x < grid[0].length;
     }
 }

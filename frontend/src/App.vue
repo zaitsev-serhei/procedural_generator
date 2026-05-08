@@ -1,9 +1,27 @@
-<template>
-  <div class="min-h-screen bg-gray-900 text-white">
-    <nav class="p-4 bg-gray-800 flex gap-4">
-      <router-link to="/">Home</router-link>
-      <router-link to="/history">History</router-link>
-    </nav>
+﻿<template>
+  <div class="pg-app-shell">
+    <header class="pg-topbar">
+      <span class="pg-brand">2D Map Generator</span>
+      <router-link to="/" custom v-slot="{ navigate, isActive }">
+        <button
+          type="button"
+          @click="navigate"
+          :class="[isActive ? 'pg-nav-button-active' : 'pg-nav-button-idle', 'pg-nav-button']"
+        >
+          Home
+        </button>
+      </router-link>
+      <div class="h-4 w-px bg-slate-800"></div>
+      <router-link to="/history" custom v-slot="{ navigate, isActive }">
+        <button
+          type="button"
+          @click="navigate"
+          :class="[isActive ? 'pg-nav-button-active' : 'pg-nav-button-idle', 'pg-nav-button']"
+        >
+          History
+        </button>
+      </router-link>
+    </header>
 
     <router-view />
   </div>

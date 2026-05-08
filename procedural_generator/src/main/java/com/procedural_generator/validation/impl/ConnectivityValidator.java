@@ -1,5 +1,6 @@
 package com.procedural_generator.validation.impl;
 
+import com.procedural_generator.domain.enums.AlgorithmType;
 import com.procedural_generator.domain.model.MapConnection;
 import com.procedural_generator.domain.model.MapGeneration;
 import com.procedural_generator.validation.MapValidator;
@@ -28,5 +29,10 @@ public class ConnectivityValidator implements MapValidator {
         if (connected.size() < map.getRooms().size() / 2) {
             throw new IllegalStateException("Map is too fragmented (low connectivity)");
         }
+    }
+
+    @Override
+    public boolean supports(AlgorithmType type) {
+        return type == AlgorithmType.BSP;//|| type == AlgorithmType.GRAPH;
     }
 }

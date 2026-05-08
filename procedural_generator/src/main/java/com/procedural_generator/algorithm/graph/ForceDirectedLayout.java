@@ -1,21 +1,27 @@
 package com.procedural_generator.algorithm.graph;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class ForceDirectedLayout implements GraphLayoutStrategy {
 
     @Override
-    public int[][] layout(MapGraph graph, int width, int height) {
+    public Map<Integer, Position> layout(GraphModel graph, int width, int height) {
 
-        int[][] grid = new int[height][width];
+        Map<Integer, Position> positions = new HashMap<>();
         Random random = new Random();
 
-        for (Integer node : graph.getNodes()) {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
-            grid[y][x] = node;
+        for (Integer node : graph.nodes()) {
+
+            positions.put(node,
+                    new Position(
+                            random.nextInt(Math.max(1, width)),
+                            random.nextInt(Math.max(1, height))
+                    )
+            );
         }
 
-        return grid;
+        return positions;
     }
 }

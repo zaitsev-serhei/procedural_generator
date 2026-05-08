@@ -1,38 +1,31 @@
 <template>
-  <div class="flex flex-wrap gap-3">
-
-    <!-- WIDTH / HEIGHT -->
-    <div>
-      <label>Width</label>
-      <input type="number" v-model.number="local.width" class="input" />
-    </div>
-
-    <div>
-      <label>Height</label>
-      <input type="number" v-model.number="local.height" class="input" />
-    </div>
-
-    <!-- DYNAMIC PARAMS -->
+  <div class="space-y-2">
     <div
       v-for="field in schema"
       :key="field.key"
+      class="min-w-0"
     >
-      <label>{{ field.label }}</label>
+      <label class="pg-field-label">{{ field.label }}</label>
 
-      <!-- NUMBER -->
       <input
         v-if="field.type === 'number'"
         type="number"
         :step="field.step || 1"
         v-model.number="local.params[field.key]"
-        class="input"
+        class="pg-input-sm"
       />
 
-      <!-- SELECT -->
+      <input
+        v-else-if="field.type === 'text'"
+        type="text"
+        v-model="local.params[field.key]"
+        class="pg-input-sm"
+      />
+
       <select
         v-else-if="field.type === 'select'"
         v-model="local.params[field.key]"
-        class="input"
+        class="pg-input-sm"
       >
         <option
           v-for="opt in field.options"
@@ -42,9 +35,7 @@
           {{ opt }}
         </option>
       </select>
-
     </div>
-
   </div>
 </template>
 
@@ -114,11 +105,3 @@ watch(
   { deep: true }
 );
 </script>
-
-<style scoped>
-.input {
-  background: #1f2937;
-  padding: 6px;
-  border-radius: 4px;
-}
-</style>

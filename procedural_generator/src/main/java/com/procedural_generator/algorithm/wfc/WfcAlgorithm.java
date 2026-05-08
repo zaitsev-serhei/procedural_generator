@@ -15,19 +15,24 @@ import java.util.Map;
 public class WfcAlgorithm implements GenerationAlgorithm {
 
     private final WfcTilesetRepository tilesetRepository;
-    private final WfcBacktracker backtracker = new WfcBacktracker();
+    private final WfcBacktracker backtracker;
 
     public WfcAlgorithm(WfcTilesetRepository tilesetRepository) {
         this.tilesetRepository = tilesetRepository;
+        this.backtracker = new WfcBacktracker(); // engine
     }
 
     @Override
     public GenerationResult generate(GenerationContext context) {
+
         WfcParams params = mapParams(context.params());
 
         WfcTileset tileset = tilesetRepository.findByName(params.tilesetName())
-                .orElseThrow(() -> new IllegalArgumentException("Tileset not found: " + params.tilesetName()));
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Tileset not found: " + params.tilesetName())
+                );
 
+        // 🧠 HERE IS THE ENGINE CALL
         int[][] tiles = backtracker.solve(
                 context.width(),
                 context.height(),
@@ -50,15 +55,18 @@ public class WfcAlgorithm implements GenerationAlgorithm {
     }
 
     private WfcParams mapParams(Map<String, Object> params) {
-        Object rawTilesetName = params.get("tilesetName");
-        if (!(rawTilesetName instanceof String tilesetName) || tilesetName.isBlank()) {
-            throw new IllegalArgumentException("WFC requires non-empty 'tilesetName'");
+
+        String tilesetName = (String) params.get("tilesetName");
+
+        if (tilesetName == null || tilesetName.isBlank()) {
+            throw new IllegalArgumentException("WFC requires tilesetName");
         }
 
         int maxRetries = 8;
+
         Object rawRetries = params.get("maxRetries");
-        if (rawRetries instanceof Number number) {
-            maxRetries = Math.max(1, number.intValue());
+        if (rawRetries instanceof Number n) {
+            maxRetries = Math.max(1, n.intValue());
         }
 
         return new WfcParams(tilesetName, maxRetries);

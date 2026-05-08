@@ -1,5 +1,6 @@
 package com.procedural_generator.validation.impl;
 
+import com.procedural_generator.domain.enums.AlgorithmType;
 import com.procedural_generator.domain.model.MapGeneration;
 import com.procedural_generator.validation.MapValidator;
 import org.springframework.stereotype.Component;
@@ -21,5 +22,10 @@ public class DimensionValidator implements MapValidator {
         if (map.getTiles().length != map.getHeight()) {
             throw new IllegalStateException("Tile height mismatch");
         }
+    }
+
+    @Override
+    public boolean supports(AlgorithmType type) {
+        return true;
     }
 }
