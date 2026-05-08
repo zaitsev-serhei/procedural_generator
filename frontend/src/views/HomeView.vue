@@ -1,19 +1,23 @@
 ﻿<template>
-  <div class="flex flex-1 overflow-hidden bg-[#0f1117]">
-    <aside class="w-[220px] min-w-0 shrink-0 flex flex-col overflow-y-auto overflow-x-hidden bg-[#1a1d27] border-r border-[#2e3348]">
-      <MapControls
-        :overlay-mode="overlayMode"
-        :selected-overlay-id="selectedOverlayId"
-        :history-items="historyStore.items"
-        @generate="onGenerate"
-        @update:overlayMode="overlayMode = $event"
-        @update:selectedOverlayId="selectedOverlayId = $event"
-      />
+  <div class="pg-app-bg">
+    <aside class="pg-sidebar-panel">
+      <div class="pg-sidebar-frame">
+        <div class="pg-sidebar-surface">
+          <MapControls
+            :overlay-mode="overlayMode"
+            :selected-overlay-id="selectedOverlayId"
+            :history-items="historyStore.items"
+            @generate="onGenerate"
+            @update:overlayMode="overlayMode = $event"
+            @update:selectedOverlayId="selectedOverlayId = $event"
+          />
+        </div>
+      </div>
     </aside>
 
     <div class="flex flex-col flex-1 overflow-hidden">
       <main
-        class="relative h-[600px] bg-[#0f1117] border-b border-[#2e3348] shrink-0 overflow-hidden cursor-grab"
+        class="pg-preview-panel"
         @mousedown.prevent="startDrag"
         @mousemove="onMouseMove"
         @mouseup="endDrag"
@@ -45,12 +49,12 @@
                   </div>
                 </template>
 
-                <div v-else class="text-[13px] text-[#555a7a]">Generate a map to preview it here.</div>
+                <div v-else class="pg-empty-state">Generate a map to preview it here.</div>
               </template>
 
               <template v-else>
                 <div class="grid h-full w-full grid-cols-2 gap-3 p-3">
-                  <div class="overflow-hidden rounded-[10px] bg-[#0f1117] border border-[#2e3348]">
+                  <div class="pg-muted-panel">
                     <div class="h-full w-full flex items-center justify-center p-3">
                       <MapCanvas
                         v-if="store.map"
@@ -59,10 +63,10 @@
                         :connections="store.map.connections"
                         :showOverlay="false"
                       />
-                      <div v-else class="text-[13px] text-[#555a7a]">Generate a map to preview it here.</div>
+                      <div v-else class="pg-empty-state">Generate a map to preview it here.</div>
                     </div>
                   </div>
-                  <div class="overflow-hidden rounded-[10px] bg-[#0f1117] border border-[#2e3348]">
+                  <div class="pg-muted-panel">
                     <div class="h-full w-full flex items-center justify-center p-3">
                       <template v-if="selectedOverlayMap">
                         <MapCanvas
@@ -72,7 +76,7 @@
                           :showOverlay="false"
                         />
                       </template>
-                      <div v-else class="text-[13px] text-[#555a7a]">Select an overlay generation</div>
+                      <div v-else class="pg-empty-state">Select an overlay generation</div>
                     </div>
                   </div>
                 </div>
@@ -81,91 +85,91 @@
         </div>
 
         <div class="absolute top-3 left-3 flex gap-1.5 pointer-events-none">
-          <span class="text-[11px] px-2 py-0.5 rounded-full bg-black/40 text-[#8b90b8] backdrop-blur-sm border border-[#2e3348]/50">
+          <span class="pg-floating-chip">
             {{ generationHistory[0]?.algorithm || 'No map' }}
           </span>
-          <span class="text-[11px] px-2 py-0.5 rounded-full bg-black/40 text-[#8b90b8] backdrop-blur-sm border border-[#2e3348]/50">
+          <span class="pg-floating-chip">
             {{ generationHistory[0]?.size || '50 x 50' }}
           </span>
         </div>
 
-        <div class="absolute bottom-3 right-3 flex flex-col gap-1 z-10">
-          <button @click.stop="zoomIn" class="w-7 h-7 flex items-center justify-center rounded-md text-sm bg-black/40 border border-[#2e3348]/60 text-[#8b90b8] hover:bg-[#22263a] hover:text-[#f0f2ff] backdrop-blur-sm transition-all duration-150 active:scale-95">+</button>
-          <button @click.stop="zoomOut" class="w-7 h-7 flex items-center justify-center rounded-md text-sm bg-black/40 border border-[#2e3348]/60 text-[#8b90b8] hover:bg-[#22263a] hover:text-[#f0f2ff] backdrop-blur-sm transition-all duration-150 active:scale-95">−</button>
-          <button @click.stop="resetView" class="w-7 h-7 flex items-center justify-center rounded-md text-sm bg-black/40 border border-[#2e3348]/60 text-[#8b90b8] hover:bg-[#22263a] hover:text-[#f0f2ff] backdrop-blur-sm transition-all duration-150 active:scale-95">⊡</button>
+        <div class="pg-floating-toolbar z-10">
+          <button @click.stop="zoomIn" class="pg-toolbar-button">+</button>
+          <button @click.stop="zoomOut" class="pg-toolbar-button">−</button>
+          <button @click.stop="resetView" class="pg-toolbar-button">⊡</button>
         </div>
       </main>
 
-      <div class="h-9 shrink-0 flex items-center gap-1.5 px-4 bg-[#1a1d27] border-b border-[#2e3348]">
+      <div class="pg-segmented-control">
         <button
           type="button"
-          :class="[viewMode === 'single' ? 'bg-[#6366f1]/15 border border-[#6366f1]/40 text-[#6366f1]' : 'bg-transparent border border-[#2e3348] text-[#555a7a] hover:border-[#3d4460] hover:text-[#8b90b8]', 'text-[11px] font-medium px-3 py-1 rounded-full cursor-pointer transition-all duration-150']"
+          :class="[viewMode === 'single' ? 'pg-segmented-button-active' : 'pg-segmented-button-idle', 'pg-segmented-button']"
           @click="viewMode = 'single'"
         >
           Single
         </button>
         <button
           type="button"
-          :class="[viewMode === 'overlay' ? 'bg-[#6366f1]/15 border border-[#6366f1]/40 text-[#6366f1]' : 'bg-transparent border border-[#2e3348] text-[#555a7a] hover:border-[#3d4460] hover:text-[#8b90b8]', 'text-[11px] font-medium px-3 py-1 rounded-full cursor-pointer transition-all duration-150']"
+          :class="[viewMode === 'overlay' ? 'pg-segmented-button-active' : 'pg-segmented-button-idle', 'pg-segmented-button']"
           @click="viewMode = 'overlay'"
         >
           Overlay
         </button>
         <button
           type="button"
-          :class="[viewMode === 'split' ? 'bg-[#6366f1]/15 border border-[#6366f1]/40 text-[#6366f1]' : 'bg-transparent border border-[#2e3348] text-[#555a7a] hover:border-[#3d4460] hover:text-[#8b90b8]', 'text-[11px] font-medium px-3 py-1 rounded-full cursor-pointer transition-all duration-150']"
+          :class="[viewMode === 'split' ? 'pg-segmented-button-active' : 'pg-segmented-button-idle', 'pg-segmented-button']"
           @click="viewMode = 'split'"
         >
           Split
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto bg-[#0f1117]">
+      <div class="pg-table-surface">
         <table class="w-full border-collapse" style="font-family: 'Inter', sans-serif;">
-          <thead class="sticky top-0 z-10 bg-[#1a1d27] border-b border-[#2e3348]">
+          <thead class="pg-table-head">
             <tr>
-                <th class="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[#555a7a] whitespace-nowrap">#</th>
-                <th class="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[#555a7a] whitespace-nowrap">Algorithm</th>
-                <th class="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[#555a7a] whitespace-nowrap">Seed</th>
-                <th class="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[#555a7a] whitespace-nowrap">Rooms</th>
-                <th class="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[#555a7a] whitespace-nowrap">Corridors</th>
-                <th class="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[#555a7a] whitespace-nowrap">Time (ms)</th>
-                <th class="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[#555a7a] whitespace-nowrap">Canvas Size</th>
-                <th class="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[#555a7a] whitespace-nowrap">Status</th>
+                <th class="pg-table-header-cell">#</th>
+                <th class="pg-table-header-cell">Algorithm</th>
+                <th class="pg-table-header-cell">Seed</th>
+                <th class="pg-table-header-cell">Rooms</th>
+                <th class="pg-table-header-cell">Corridors</th>
+                <th class="pg-table-header-cell">Time (ms)</th>
+                <th class="pg-table-header-cell">Canvas Size</th>
+                <th class="pg-table-header-cell">Status</th>
               </tr>
             </thead>
             <tbody>
               <tr
                 v-for="(row, index) in generationHistory"
                 :key="row.id"
-                class="border-b border-[#1e2233] hover:bg-[#1a1d27] transition-colors duration-100 cursor-pointer"
+                class="pg-table-row"
               >
-                <td class="px-4 py-2 text-[12px] text-[#555a7a] font-mono">{{ index + 1 }}</td>
-                <td class="px-4 py-2 text-[12px] text-[#8b90b8]">{{ row.algorithm }}</td>
-                <td class="px-4 py-2 text-[11px] font-mono text-[#555a7a]">{{ row.seed }}</td>
-                <td class="px-4 py-2 text-[12px] text-[#8b90b8]">{{ row.rooms }}</td>
-                <td class="px-4 py-2 text-[12px] text-[#8b90b8]">{{ row.corridors }}</td>
-                <td class="px-4 py-2 text-[12px] text-[#8b90b8]">{{ row.time }}</td>
-                <td class="px-4 py-2 text-[12px] text-[#8b90b8]">{{ row.size }}</td>
-                <td class="px-4 py-2 text-[12px] text-[#8b90b8]">
+                <td class="pg-table-cell-muted font-mono">{{ index + 1 }}</td>
+                <td class="pg-table-cell">{{ row.algorithm }}</td>
+                <td class="pg-table-cell-muted font-mono text-[11px]">{{ row.seed }}</td>
+                <td class="pg-table-cell">{{ row.rooms }}</td>
+                <td class="pg-table-cell">{{ row.corridors }}</td>
+                <td class="pg-table-cell">{{ row.time }}</td>
+                <td class="pg-table-cell">{{ row.size }}</td>
+                <td class="pg-table-cell">
                   <span
                     v-if="row.status === 'success'"
-                    class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    class="pg-status-chip pg-status-chip-success"
                   >
-                    <span class="w-1 h-1 rounded-full bg-emerald-400 inline-block"></span>
+                    <span class="pg-status-dot bg-emerald-300"></span>
                     success
                   </span>
                   <span
                     v-else
-                    class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    class="pg-status-chip pg-status-chip-warning"
                   >
-                    <span class="w-1 h-1 rounded-full bg-amber-400 inline-block"></span>
+                    <span class="pg-status-dot bg-amber-300"></span>
                     warning
                   </span>
                 </td>
               </tr>
               <tr v-if="generationHistory.length === 0">
-                <td colspan="8" class="px-4 py-12 text-center text-[13px] text-[#555a7a]">No generations yet — configure parameters and click Generate map</td>
+                <td colspan="8" class="pg-empty-state">No generations yet — configure parameters and click Generate map</td>
               </tr>
             </tbody>
           </table>
