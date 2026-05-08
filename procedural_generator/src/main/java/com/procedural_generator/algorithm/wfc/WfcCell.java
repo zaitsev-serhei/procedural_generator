@@ -5,34 +5,38 @@ import java.util.Set;
 
 public class WfcCell {
 
-    private final Set<Integer> possibleTiles;
+    private Set<Integer> possible;
+    private boolean collapsed;
+    private Integer tile;
 
-    public WfcCell(Set<Integer> possibleTiles) {
-        this.possibleTiles = new HashSet<>(possibleTiles);
-    }
-
-    public Set<Integer> getPossibleTiles() {
-        return possibleTiles;
-    }
-
-    public boolean isCollapsed() {
-        return possibleTiles.size() == 1;
+    public WfcCell(Set<Integer> allTiles) {
+        this.possible = new HashSet<>(allTiles);
     }
 
     public int entropy() {
-        return possibleTiles.size();
+        return possible.size();
     }
 
-    public boolean constrain(Set<Integer> allowedTiles) {
-        return possibleTiles.retainAll(allowedTiles);
+    public boolean isCollapsed() {
+        return collapsed;
     }
 
-    public void collapseTo(int tile) {
-        possibleTiles.clear();
-        possibleTiles.add(tile);
+    public Set<Integer> getPossibleTiles() {
+        return possible;
     }
 
-    public int collapsedTile() {
-        return possibleTiles.iterator().next();
+    public void collapseTo(int t) {
+        possible.clear();
+        possible.add(t);
+        collapsed = true;
+        tile = t;
+    }
+
+    public Integer collapsedTile() {
+        return tile;
+    }
+
+    public void removeImpossible(Set<Integer> allowed) {
+        possible.retainAll(allowed);
     }
 }

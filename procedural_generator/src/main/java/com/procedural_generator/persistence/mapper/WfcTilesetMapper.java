@@ -42,52 +42,66 @@ public class WfcTilesetMapper {
 
     @SuppressWarnings("unchecked")
     private Map<Integer, WfcTileset.Rule> toDomainRules(String rawRulesJson) {
+        System.out.println(rawRulesJson);
         if (rawRulesJson == null || rawRulesJson.isBlank()) {
             return Map.of();
         }
 
         Map<String, Object> rawRules;
+
         try {
-            rawRules = objectMapper.readValue(rawRulesJson, new TypeReference<>() {
-            });
+            rawRules = objectMapper.readValue(rawRulesJson, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Invalid tilesetData json", e);
         }
 
         Map<Integer, WfcTileset.Rule> rules = new HashMap<>();
+
         for (Map.Entry<String, Object> entry : rawRules.entrySet()) {
-            int tileCode = Integer.parseInt(entry.getKey());
-            Map<String, Object> directionalRules = (Map<String, Object>) entry.getValue();
 
-            List<Integer> up = toIntList(directionalRules.get("up"));
-            List<Integer> down = toIntList(directionalRules.get("down"));
-            List<Integer> left = toIntList(directionalRules.get("left"));
-            List<Integer> right = toIntList(directionalRules.get("right"));
+            // ❗ safety: skip invalid keys
+            if (entry.getValue() instanceof Map<?, ?> directionalRulesRaw) {
 
-            rules.put(tileCode, new WfcTileset.Rule(up, down, left, right));
+                int tileCode = Integer.parseInt(entry.getKey());
+
+                @SuppressWarnings("unchecked")
+                Map<String, Object> directionalRules = (Map<String, Object>) directionalRulesRaw;
+
+                List<Integer> up = toIntList(directionalRules.get("up"));
+                List<Integer> down = toIntList(directionalRules.get("down"));
+                List<Integer> left = toIntList(directionalRules.get("left"));
+                List<Integer> right = toIntList(directionalRules.get("right"));
+
+                rules.put(tileCode, new WfcTileset.Rule(up, down, left, right));
+            }
         }
 
         return rules;
     }
 
     private String toEntityRules(Map<Integer, WfcTileset.Rule> rules) {
+
         if (rules == null) {
             return "{}";
         }
 
         Map<String, Object> rawRules = new HashMap<>();
+
         for (Map.Entry<Integer, WfcTileset.Rule> entry : rules.entrySet()) {
+
             WfcTileset.Rule rule = entry.getValue();
-            Map<String, Object> directionalRules = new HashMap<>();
-            directionalRules.put("up", rule.up());
-            directionalRules.put("down", rule.down());
-            directionalRules.put("left", rule.left());
-            directionalRules.put("right", rule.right());
-            rawRules.put(entry.getKey().toString(), directionalRules);
+
+            Map<String, Object> directional = new HashMap<>();
+            directional.put("up", rule.up());
+            directional.put("down", rule.down());
+            directional.put("left", rule.left());
+            directional.put("right", rule.right());
+
+            rawRules.put(entry.getKey().toString(), directional);
         }
 
         try {
-            return objectMapper.writeValueAsString(rawRules);
+            return objectMapper.writeValueAsString(rawRules); // ❗ NO "rules" wrapper
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Cannot serialize tileset rules", e);
         }

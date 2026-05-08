@@ -7,8 +7,11 @@ import com.procedural_generator.domain.enums.AlgorithmType;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 @Component
 public class GraphAlgorithm implements GenerationAlgorithm {
@@ -18,6 +21,8 @@ public class GraphAlgorithm implements GenerationAlgorithm {
             "FORCE", new ForceDirectedLayout()
     );
 
+    private final GraphTileRenderer renderer = new GraphTileRenderer();
+
     @Override
     public AlgorithmType getType() {
         return AlgorithmType.GRAPH;
@@ -25,10 +30,23 @@ public class GraphAlgorithm implements GenerationAlgorithm {
 
     @Override
     public GenerationResult generate(GenerationContext context) {
+
         GraphParams params = mapParams(context.params());
-        MapGraph graph = createGraph(params, context.seed());
-        int[][] tiles = strategies.getOrDefault(params.layoutStrategy(), new GridLayout())
-                .layout(graph, context.width(), context.height());
+
+        GraphModel graph = createGraph(params, context.seed());
+
+        GraphLayoutStrategy strategy =
+                strategies.getOrDefault(params.layoutStrategy(), new GridLayout());
+
+        Map<Integer, Position> positions =
+                strategy.layout(graph, context.width(), context.height());
+
+        int[][] tiles = renderer.render(
+                graph,
+                positions,
+                context.width(),
+                context.height()
+        );
 
         return new GenerationResult(
                 tiles,
@@ -39,6 +57,7 @@ public class GraphAlgorithm implements GenerationAlgorithm {
     }
 
     private GraphParams mapParams(Map<String, Object> params) {
+
         int nodeCount = getInt(params, "nodeCount", 10);
         double connectivity = getDouble(params, "connectivity", 0.3);
         String layoutStrategy = getString(params, "layoutStrategy", "GRID");
@@ -54,43 +73,51 @@ public class GraphAlgorithm implements GenerationAlgorithm {
         );
     }
 
-    private MapGraph createGraph(GraphParams params, long seed) {
-        MapGraph graph = new MapGraph();
+    private GraphModel createGraph(GraphParams params, long seed) {
+
         Random random = new Random(seed);
 
+        Set<Integer> nodes = new HashSet<>();
+        List<GraphModel.Edge> edges = new ArrayList<>();
+
         for (int i = 1; i <= params.nodeCount(); i++) {
-            graph.addNode(i);
+            nodes.add(i);
         }
 
-        for (int from = 1; from <= params.nodeCount(); from++) {
-            for (int to = from + 1; to <= params.nodeCount(); to++) {
-                if (random.nextDouble() <= params.connectivity()) {
-                    graph.addEdge(from, to, randomWeight(params, random));
+        for (int from : nodes) {
+            for (int to : nodes) {
+
+                if (from < to && random.nextDouble() <= params.connectivity()) {
+                    edges.add(new GraphModel.Edge(
+                            from,
+                            to,
+                            randomWeight(params, random)
+                    ));
                 }
             }
         }
 
-        return graph;
+        return new GraphModel(nodes, edges);
     }
 
     private double randomWeight(GraphParams params, Random random) {
-        double min = Math.min(params.minEdgeWeight(), params.maxEdgeWeight());
-        double max = Math.max(params.minEdgeWeight(), params.maxEdgeWeight());
-        return min + (random.nextDouble() * (max - min));
+        return params.minEdgeWeight()
+                + (params.maxEdgeWeight() - params.minEdgeWeight())
+                * random.nextDouble();
     }
 
-    private int getInt(Map<String, Object> map, String key, int defaultValue) {
-        Object val = map.get(key);
-        return val instanceof Number ? ((Number) val).intValue() : defaultValue;
+    private int getInt(Map<String, Object> map, String key, int def) {
+        Object v = map.get(key);
+        return v instanceof Number ? ((Number) v).intValue() : def;
     }
 
-    private double getDouble(Map<String, Object> map, String key, double defaultValue) {
-        Object val = map.get(key);
-        return val instanceof Number ? ((Number) val).doubleValue() : defaultValue;
+    private double getDouble(Map<String, Object> map, String key, double def) {
+        Object v = map.get(key);
+        return v instanceof Number ? ((Number) v).doubleValue() : def;
     }
 
-    private String getString(Map<String, Object> map, String key, String defaultValue) {
-        Object val = map.get(key);
-        return val instanceof String text && !text.isBlank() ? text : defaultValue;
+    private String getString(Map<String, Object> map, String key, String def) {
+        Object v = map.get(key);
+        return v != null ? v.toString() : def;
     }
 }

@@ -1,10 +1,10 @@
 ﻿<template>
-  <div class="flex flex-col h-full">
-    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-      <label class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-1.5">Algorithm</label>
+  <div class="flex flex-col h-full min-w-0 overflow-x-hidden text-white space-y-[5px]">
+    <div class="p-3 border-b border-[#2e3348]">
+      <label class="text-[10px] uppercase tracking-widest text-white font-medium block mb-1.5">Algorithm</label>
       <select
         v-model="algorithm"
-        class="w-full h-8 text-sm px-3 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        class="w-full min-w-0 h-9 rounded-xl bg-white border border-slate-300 px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
       >
         <option
           v-for="option in algorithmOptions"
@@ -16,67 +16,67 @@
       </select>
     </div>
 
-    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 grid grid-cols-2 gap-3">
+    <div class="p-3 border-b border-[#2e3348] grid grid-cols-2 gap-3">
       <div>
-        <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Width</label>
+        <label class="text-xs text-white block mb-1.5">Width</label>
         <input
           type="number"
           v-model.number="form.width"
-          class="w-full h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100"
+          class="w-full min-w-0 h-9 rounded-xl bg-white border border-slate-300 px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
         />
       </div>
       <div>
-        <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Height</label>
+        <label class="text-xs text-white block mb-1.5">Height</label>
         <input
           type="number"
           v-model.number="form.height"
-          class="w-full h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100"
+          class="w-full min-w-0 h-9 rounded-xl bg-white border border-slate-300 px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
         />
       </div>
     </div>
 
-    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-      <label class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-3">Parameters</label>
+    <div class="p-3 border-b border-[#2e3348] space-y-[5px]">
+      <label class="text-[10px] uppercase tracking-widest text-white/70 font-medium block mb-3">Parameters</label>
       <ParamsForm v-model="form" :algorithm="algorithm" />
     </div>
 
-    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-      <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Seed</label>
+    <div class="p-3 border-b border-[#2e3348]">
+      <label class="text-xs text-white block mb-1.5">Seed</label>
       <div class="flex gap-2">
         <input
           type="text"
           v-model="seed"
-          class="flex-1 h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm font-mono text-gray-900 dark:text-gray-100"
+          class="flex-1 min-w-0 h-9 rounded-xl bg-white border border-slate-300 px-3 text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
         />
         <button
           type="button"
           @click="randomizeSeed"
-          class="h-8 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+          class="h-9 rounded-xl bg-[#161b2f] border border-[#2e3348] px-3 text-sm font-medium text-white hover:bg-[#1f253e] transition"
         >
           ↻
         </button>
       </div>
     </div>
 
-    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+    <div class="p-3 border-b border-[#2e3348]">
       <button
         type="button"
         @click="generate"
-        class="w-full h-10 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition"
+        class="w-full h-9 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 active:scale-[0.98] transition duration-150"
       >
         Generate
       </button>
     </div>
 
-    <div class="px-4 py-3">
+    <div class="p-3">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs uppercase tracking-widest text-gray-400 font-medium">Compare / Overlay</span>
-        <label class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <span class="text-xs uppercase tracking-widest text-white/70 font-medium">Compare / Overlay</span>
+        <label class="inline-flex items-center gap-2 text-sm text-white/80">
           <input
             type="checkbox"
             :checked="overlayModeLocal"
             @change="toggleOverlayMode($event)"
-            class="h-4 w-4 rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+            class="h-4 w-4 rounded border-[#2e3348] bg-white text-slate-900 focus:ring-indigo-500"
           />
           On
         </label>
@@ -86,7 +86,7 @@
         v-if="overlayModeLocal"
         :value="selectedOverlayIdLocal"
         @change="onOverlaySelect($event.target.value)"
-        class="w-full h-9 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100"
+        class="w-full min-w-0 h-9 rounded-xl bg-white border border-slate-300 px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
       >
         <option value="">Select generation</option>
         <option

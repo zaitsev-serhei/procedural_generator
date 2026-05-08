@@ -33,6 +33,6 @@ public class ConnectivityValidator implements MapValidator {
 
     @Override
     public boolean supports(AlgorithmType type) {
-        return type == AlgorithmType.BSP || type == AlgorithmType.GRAPH;
+        return type == AlgorithmType.BSP;//|| type == AlgorithmType.GRAPH;
     }
 }

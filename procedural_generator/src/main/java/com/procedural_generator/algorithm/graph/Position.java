@@ -1,4 +1,3 @@
 package com.procedural_generator.algorithm.graph;
 
-public class Position {
-}
+public record Position(int x, int y) {}

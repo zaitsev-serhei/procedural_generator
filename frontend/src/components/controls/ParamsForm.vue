@@ -1,30 +1,31 @@
 <template>
-  <div class="space-y-3">
+  <div class="space-y-[5px]">
     <div
       v-for="field in schema"
       :key="field.key"
+      class="min-w-0"
     >
-      <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">{{ field.label }}</label>
+      <label class="text-xs text-white block mb-1.5">{{ field.label }}</label>
 
       <input
         v-if="field.type === 'number'"
         type="number"
         :step="field.step || 1"
         v-model.number="local.params[field.key]"
-        class="w-full h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        class="w-full min-w-0 h-8 rounded-md bg-white border border-slate-300 px-3 text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
       />
 
       <input
         v-else-if="field.type === 'text'"
         type="text"
         v-model="local.params[field.key]"
-        class="w-full h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        class="w-full min-w-0 h-8 rounded-md bg-white border border-slate-300 px-3 text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
       />
 
       <select
         v-else-if="field.type === 'select'"
         v-model="local.params[field.key]"
-        class="w-full h-8 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        class="w-full min-w-0 h-8 rounded-md bg-white border border-slate-300 px-3 text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
       >
         <option
           v-for="opt in field.options"

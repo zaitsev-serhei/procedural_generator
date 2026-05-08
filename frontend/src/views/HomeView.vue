@@ -1,6 +1,6 @@
 ﻿<template>
   <div class="flex flex-1 overflow-hidden bg-[#0f1117]">
-    <aside class="w-[220px] shrink-0 flex flex-col overflow-y-auto bg-[#1a1d27] border-r border-[#2e3348]">
+    <aside class="w-[220px] min-w-0 shrink-0 flex flex-col overflow-y-auto overflow-x-hidden bg-[#1a1d27] border-r border-[#2e3348]">
       <MapControls
         :overlay-mode="overlayMode"
         :selected-overlay-id="selectedOverlayId"
@@ -13,8 +13,7 @@
 
     <div class="flex flex-col flex-1 overflow-hidden">
       <main
-        class="relative bg-[#0f1117] border-b border-[#2e3348] shrink-0"
-        style="height: 420px; overflow: hidden; cursor: grab;"
+        class="relative h-[600px] bg-[#0f1117] border-b border-[#2e3348] shrink-0 overflow-hidden cursor-grab"
         @mousedown.prevent="startDrag"
         @mousemove="onMouseMove"
         @mouseup="endDrag"

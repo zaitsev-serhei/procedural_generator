@@ -1,6 +1,8 @@
 package com.procedural_generator.algorithm.graph;
 
+import java.util.Map;
+
 public interface GraphLayoutStrategy {
 
-    int[][] layout(MapGraph graph, int width, int height);
+    Map<Integer, Position> layout(GraphModel graph, int width, int height);
 }
