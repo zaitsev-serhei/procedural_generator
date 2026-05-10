@@ -1,19 +1,38 @@
 <template>
-  <div class="flex gap-4 flex-wrap mt-4">
+  <div class="pg-tile-legend" aria-label="Tile legend">
+    <div class="pg-tile-legend-title">Tiles</div>
     <div
-      v-for="(color, key) in tileColors"
-      :key="key"
-      class="flex items-center gap-2"
+      v-for="tile in legendItems"
+      :key="tile.key"
+      class="pg-tile-legend-item"
     >
-      <div
-        :style="{ background: color }"
-        class="w-4 h-4 border"
-      ></div>
-      <span>{{ key }}</span>
+      <span
+        :style="{ background: tile.color }"
+        class="pg-tile-legend-swatch"
+      ></span>
+      <span>{{ tile.label }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { tileColors } from "../../utils/tileColors";
+
+const tileLabels = {
+  0: "Void",
+  1: "Floor",
+  2: "Wall",
+  3: "Water",
+  4: "Door",
+  5: "Corridor",
+};
+
+const legendItems = computed(() =>
+  Object.entries(tileColors).map(([key, color]) => ({
+    key,
+    color,
+    label: tileLabels[key] || `Tile ${key}`,
+  }))
+);
 </script>

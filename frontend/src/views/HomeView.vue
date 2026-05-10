@@ -93,6 +93,10 @@
           </span>
         </div>
 
+        <div v-if="store.map" class="pg-tile-legend-anchor">
+          <TileLegend />
+        </div>
+
         <div class="pg-floating-toolbar z-10">
           <button @click.stop="zoomIn" class="pg-toolbar-button">+</button>
           <button @click.stop="zoomOut" class="pg-toolbar-button">−</button>
@@ -185,6 +189,7 @@ import { useHistoryStore } from "../store/historyStore";
 import { getMapById } from "../api/mapApi";
 import MapControls from "../components/controls/MapControls.vue";
 import MapCanvas from "../components/map/MapCanvas.vue";
+import TileLegend from "../components/map/TileLegend.vue";
 
 const store = useMapStore();
 const historyStore = useHistoryStore();

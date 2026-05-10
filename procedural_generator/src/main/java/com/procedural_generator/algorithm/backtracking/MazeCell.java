@@ -1,4 +1,7 @@
 package com.procedural_generator.algorithm.backtracking;
 
-public class MazeCell {
+public record MazeCell(
+        int x,
+        int y
+) {
 }

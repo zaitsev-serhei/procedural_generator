@@ -18,20 +18,64 @@
 
     <div class="pg-control-section-muted grid grid-cols-2 gap-3">
       <div>
-        <label class="pg-field-label">Width</label>
+        <div class="pg-field-heading">
+          <label class="pg-field-label">Width</label>
+          <button
+            type="button"
+            class="pg-help-button"
+            :aria-expanded="activeControlHelpKey === 'width'"
+            aria-label="Show help for Width"
+            @click="activeControlHelpKey = activeControlHelpKey === 'width' ? '' : 'width'"
+          >
+            ?
+          </button>
+        </div>
         <input
           type="number"
           v-model.number="form.width"
           class="pg-input"
         />
+        <div
+          v-if="activeControlHelpKey === 'width'"
+          class="pg-help-bubble"
+        >
+          <div class="pg-help-title">{{ getParamHelp('COMMON', 'width', 'Width').label }}</div>
+          <p>{{ getParamHelp('COMMON', 'width', 'Width').descriptionEn }}</p>
+          <p>{{ getParamHelp('COMMON', 'width', 'Width').descriptionUa }}</p>
+          <div class="pg-help-recommended">
+            Recommended: {{ getParamHelp('COMMON', 'width', 'Width').recommended }}
+          </div>
+        </div>
       </div>
       <div>
-        <label class="pg-field-label">Height</label>
+        <div class="pg-field-heading">
+          <label class="pg-field-label">Height</label>
+          <button
+            type="button"
+            class="pg-help-button"
+            :aria-expanded="activeControlHelpKey === 'height'"
+            aria-label="Show help for Height"
+            @click="activeControlHelpKey = activeControlHelpKey === 'height' ? '' : 'height'"
+          >
+            ?
+          </button>
+        </div>
         <input
           type="number"
           v-model.number="form.height"
           class="pg-input"
         />
+        <div
+          v-if="activeControlHelpKey === 'height'"
+          class="pg-help-bubble"
+        >
+          <div class="pg-help-title">{{ getParamHelp('COMMON', 'height', 'Height').label }}</div>
+          <p>{{ getParamHelp('COMMON', 'height', 'Height').descriptionEn }}</p>
+          <p>{{ getParamHelp('COMMON', 'height', 'Height').descriptionUa }}</p>
+          <div class="pg-help-recommended">
+            Recommended: {{ getParamHelp('COMMON', 'height', 'Height').recommended }}
+          </div>
+        </div>
       </div>
     </div>
 
@@ -41,7 +85,18 @@
     </div>
 
     <div class="pg-control-section-muted">
-      <label class="pg-field-label">Seed</label>
+      <div class="pg-field-heading">
+        <label class="pg-field-label">Seed</label>
+        <button
+          type="button"
+          class="pg-help-button"
+          :aria-expanded="activeControlHelpKey === 'seed'"
+          aria-label="Show help for Seed"
+          @click="activeControlHelpKey = activeControlHelpKey === 'seed' ? '' : 'seed'"
+        >
+          ?
+        </button>
+      </div>
       <div class="flex gap-2">
         <input
           type="text"
@@ -55,6 +110,17 @@
         >
           ↻
         </button>
+      </div>
+      <div
+        v-if="activeControlHelpKey === 'seed'"
+        class="pg-help-bubble"
+      >
+        <div class="pg-help-title">{{ getParamHelp('COMMON', 'seed', 'Seed').label }}</div>
+        <p>{{ getParamHelp('COMMON', 'seed', 'Seed').descriptionEn }}</p>
+        <p>{{ getParamHelp('COMMON', 'seed', 'Seed').descriptionUa }}</p>
+        <div class="pg-help-recommended">
+          Recommended: {{ getParamHelp('COMMON', 'seed', 'Seed').recommended }}
+        </div>
       </div>
     </div>
 
@@ -104,7 +170,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import ParamsForm from "./ParamsForm.vue";
-import { algorithmOptions, getAlgorithmDefaults } from "../../utils/algorithmSchemas";
+import { algorithmOptions, getAlgorithmDefaults, getParamHelp } from "../../utils/algorithmSchemas";
 
 const props = defineProps({
   overlayMode: {
@@ -126,6 +192,7 @@ const emit = defineEmits(["generate", "update:overlayMode", "update:selectedOver
 const algorithm = ref("BSP");
 const seed = ref(Date.now());
 const form = ref({ width: 50, height: 50, params: getAlgorithmDefaults("BSP") });
+const activeControlHelpKey = ref("");
 const overlayModeLocal = ref(props.overlayMode);
 const selectedOverlayIdLocal = ref(props.selectedOverlayId || "");
 

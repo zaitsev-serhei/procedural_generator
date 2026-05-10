@@ -1,5 +1,6 @@
 package com.procedural_generator.algorithm;
 
+import com.procedural_generator.algorithm.backtracking.DfsBacktrackingAlgorithm;
 import com.procedural_generator.algorithm.bsp.BspAlgorithm;
 import com.procedural_generator.algorithm.cellular.CellularAutomataAlgorithm;
 import com.procedural_generator.algorithm.graph.GraphAlgorithm;
@@ -29,6 +30,8 @@ public class AlgorithmRegistry {
                 registry.put(AlgorithmType.WFC, algorithm);
             } else if (algorithm instanceof PerlinNoiseAlgorithm) {
                 registry.put(AlgorithmType.PERLIN, algorithm);
+            } else if (algorithm instanceof DfsBacktrackingAlgorithm) {
+                registry.put(AlgorithmType.DFS_BACKTRACKING, algorithm);
             }
         }
     }

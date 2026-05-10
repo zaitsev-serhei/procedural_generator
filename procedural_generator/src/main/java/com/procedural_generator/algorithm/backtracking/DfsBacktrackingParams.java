@@ -1,4 +1,6 @@
 package com.procedural_generator.algorithm.backtracking;
 
-public class DfsBacktrackingParams {
+public record DfsBacktrackingParams(
+        int corridorWidth
+) {
 }
