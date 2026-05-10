@@ -27,7 +27,7 @@ public class WfcAlgorithm implements GenerationAlgorithm {
 
         WfcParams params = mapParams(context.params());
 
-        WfcTileset tileset = tilesetRepository.findByName(params.tilesetName())
+        WfcTileset tileset = tilesetRepository.findByName("default")
                 .orElseThrow(() ->
                         new IllegalArgumentException("Tileset not found: " + params.tilesetName())
                 );

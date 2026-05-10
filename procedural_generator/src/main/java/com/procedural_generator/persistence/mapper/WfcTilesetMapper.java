@@ -42,41 +42,58 @@ public class WfcTilesetMapper {
 
     @SuppressWarnings("unchecked")
     private Map<Integer, WfcTileset.Rule> toDomainRules(String rawRulesJson) {
+
         System.out.println(rawRulesJson);
+
         if (rawRulesJson == null || rawRulesJson.isBlank()) {
             return Map.of();
         }
 
-        Map<String, Object> rawRules;
-
         try {
-            rawRules = objectMapper.readValue(rawRulesJson, new TypeReference<>() {});
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Invalid tilesetData json", e);
-        }
 
-        Map<Integer, WfcTileset.Rule> rules = new HashMap<>();
+            // CURRENT DB FORMAT:
+            // {
+            //   "0": [0,1],
+            //   "1": [1,2]
+            // }
 
-        for (Map.Entry<String, Object> entry : rawRules.entrySet()) {
+            Map<String, List<Integer>> rawRules =
+                    objectMapper.readValue(
+                            rawRulesJson,
+                            new TypeReference<>() {}
+                    );
 
-            // ❗ safety: skip invalid keys
-            if (entry.getValue() instanceof Map<?, ?> directionalRulesRaw) {
+            Map<Integer, WfcTileset.Rule> rules = new HashMap<>();
+
+            for (Map.Entry<String, List<Integer>> entry : rawRules.entrySet()) {
 
                 int tileCode = Integer.parseInt(entry.getKey());
 
-                @SuppressWarnings("unchecked")
-                Map<String, Object> directionalRules = (Map<String, Object>) directionalRulesRaw;
+                List<Integer> allowed = entry.getValue();
 
-                List<Integer> up = toIntList(directionalRules.get("up"));
-                List<Integer> down = toIntList(directionalRules.get("down"));
-                List<Integer> left = toIntList(directionalRules.get("left"));
-                List<Integer> right = toIntList(directionalRules.get("right"));
-
-                rules.put(tileCode, new WfcTileset.Rule(up, down, left, right));
+                // SAME RULES FOR ALL DIRECTIONS
+                rules.put(
+                        tileCode,
+                        new WfcTileset.Rule(
+                                new ArrayList<>(allowed),
+                                new ArrayList<>(allowed),
+                                new ArrayList<>(allowed),
+                                new ArrayList<>(allowed)
+                        )
+                );
             }
-        }
 
-        return rules;
+            System.out.println("PARSED RULES = " + rules.size());
+
+            return rules;
+
+        } catch (Exception e) {
+
+            throw new IllegalArgumentException(
+                    "Invalid tilesetData json",
+                    e
+            );
+        }
     }
 
     private String toEntityRules(Map<Integer, WfcTileset.Rule> rules) {
