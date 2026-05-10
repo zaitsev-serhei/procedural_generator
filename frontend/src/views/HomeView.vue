@@ -156,7 +156,7 @@
                     v-if="row.status === 'success'"
                     class="pg-status-chip pg-status-chip-success"
                   >
-                    <span class="pg-status-dot bg-emerald-300"></span>
+                    <span class="pg-status-dot pg-status-chip-success"></span>
                     success
                   </span>
                   <span
