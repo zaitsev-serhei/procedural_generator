@@ -5,5 +5,6 @@ public enum AlgorithmType {
     CELLULAR,
     BSP,
     GRAPH,
-    WFC
+    WFC,
+    DFS_BACKTRACKING
 }

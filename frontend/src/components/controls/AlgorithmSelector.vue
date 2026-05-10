@@ -9,6 +9,7 @@
       <option value="PERLIN">Perlin</option>
       <option value="GRAPH">Graph</option>
       <option value="WFC">WFC</option>
+      <option value="DFS_BACKTRACKING">DFS Backtracking</option>
     </select>
     <div class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555a7a] text-[10px]">▾</div>
   </div>

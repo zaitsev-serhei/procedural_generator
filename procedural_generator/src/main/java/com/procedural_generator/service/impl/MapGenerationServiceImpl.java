@@ -44,6 +44,11 @@ public class MapGenerationServiceImpl implements MapGenerationService {
 
         RuntimeException lastException = null;
 
+        if (algorithmType == AlgorithmType.DFS_BACKTRACKING) {
+            width = normalizeMazeDimension(width);
+            height = normalizeMazeDimension(height);
+        }
+
         for (int attempt = 0; attempt < maxAttempts; attempt++) {
 
             long currentSeed = seed + attempt; // 🔥 важливо
@@ -88,5 +93,11 @@ public class MapGenerationServiceImpl implements MapGenerationService {
                 "Failed to generate valid map after " + maxAttempts + " attempts",
                 lastException
         );
+    }
+
+    private int normalizeMazeDimension(int value) {
+        return value % 2 == 0
+                ? value - 1
+                : value;
     }
 }

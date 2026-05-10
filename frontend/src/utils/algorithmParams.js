@@ -33,4 +33,8 @@ export const algorithmDefaults = {
     tilesetName: "default",
     maxRetries: 8,
   },
+
+  DFS_BACKTRACKING: {
+  corridorWidth: 1
+  },
 };
