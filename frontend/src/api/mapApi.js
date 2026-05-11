@@ -5,5 +5,5 @@ export const generateMap = (payload) => {
 };
 
 export const getMapById = (id) => {
-  return api.get(`/history/${id}`);
+  return api.get(`/maps/${id}`);
 };

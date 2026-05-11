@@ -35,11 +35,18 @@ public class MapHistoryController {
     public PagedResponseDto<MapSummaryDto> history(Pageable pageable) {
         return mapHistoryService.getHistory(pageable);
     }
+
     @GetMapping("/history/{id}")
     public MapResponseDto getById(@PathVariable UUID id) {
         MapGeneration map = mapHistoryService.getById(id);
         return toResponseDto(map);
     }
+
+    @GetMapping("/{id}")
+    public MapResponseDto getMap(@PathVariable UUID id) {
+        return getById(id);
+    }
+
     private MapResponseDto toResponseDto(MapGeneration generation) {
 
         List<RoomDto> rooms = generation.getRooms().stream()

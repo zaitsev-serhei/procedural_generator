@@ -5,11 +5,11 @@
         <div class="pg-sidebar-surface">
           <MapControls
             :overlay-mode="overlayMode"
-            :selected-overlay-id="selectedOverlayId"
+            :selected-overlay-id="selectedComparisonMapId"
             :history-items="historyStore.items"
             @generate="onGenerate"
             @update:overlayMode="overlayMode = $event"
-            @update:selectedOverlayId="selectedOverlayId = $event"
+            @update:selectedOverlayId="selectedComparisonMapId = $event"
           />
         </div>
       </div>
@@ -25,66 +25,48 @@
         @wheel.prevent="onWheel"
       >
         <div
+          v-if="!isSplitView"
           :style="{ ...transformStyle, transformOrigin: 'center center', transition: dragging ? 'none' : 'transform 0.1s ease', position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }"
         >
           <div class="absolute inset-0 flex items-center justify-center">
-              <template v-if="viewMode !== 'split'">
-                <template v-if="store.map">
+              <template v-if="currentMap">
                   <div class="relative inline-block">
                     <MapCanvas
-                      :tiles="store.map.tiles"
-                      :rooms="store.map.rooms"
-                      :connections="store.map.connections"
+                      :tiles="currentMap.tiles"
+                      :rooms="currentMap.rooms"
+                      :connections="currentMap.connections"
                       :showOverlay="false"
                     />
 
                     <MapCanvas
-                      v-if="overlayMode && selectedOverlayMap"
+                      v-if="overlayMode && comparisonMap"
                       class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 pointer-events-none"
-                      :tiles="selectedOverlayMap.tiles"
-                      :rooms="selectedOverlayMap.rooms"
-                      :connections="selectedOverlayMap.connections"
+                      :tiles="comparisonMap.tiles"
+                      :rooms="comparisonMap.rooms"
+                      :connections="comparisonMap.connections"
                       :showOverlay="false"
                     />
                   </div>
                 </template>
 
                 <div v-else class="pg-empty-state">Generate a map to preview it here.</div>
-              </template>
-
-              <template v-else>
-                <div class="grid h-full w-full grid-cols-2 gap-3 p-3">
-                  <div class="pg-muted-panel">
-                    <div class="h-full w-full flex items-center justify-center p-3">
-                      <MapCanvas
-                        v-if="store.map"
-                        :tiles="store.map.tiles"
-                        :rooms="store.map.rooms"
-                        :connections="store.map.connections"
-                        :showOverlay="false"
-                      />
-                      <div v-else class="pg-empty-state">Generate a map to preview it here.</div>
-                    </div>
-                  </div>
-                  <div class="pg-muted-panel">
-                    <div class="h-full w-full flex items-center justify-center p-3">
-                      <template v-if="selectedOverlayMap">
-                        <MapCanvas
-                          :tiles="selectedOverlayMap.tiles"
-                          :rooms="selectedOverlayMap.rooms"
-                          :connections="selectedOverlayMap.connections"
-                          :showOverlay="false"
-                        />
-                      </template>
-                      <div v-else class="pg-empty-state">Select an overlay generation</div>
-                    </div>
-                  </div>
-                </div>
-              </template>
           </div>
         </div>
 
-        <div class="absolute top-3 left-3 flex gap-1.5 pointer-events-none">
+        <div v-else class="pg-compare-grid">
+          <MapViewport
+            :map="currentMap"
+            title="Current map"
+            placeholder="Generate a map to preview it here."
+          />
+          <MapViewport
+            :map="comparisonMap"
+            title="Comparison map"
+            placeholder="Select a map to compare"
+          />
+        </div>
+
+        <div v-if="!isSplitView" class="absolute top-3 left-3 flex gap-1.5 pointer-events-none">
           <span class="pg-floating-chip">
             {{ generationHistory[0]?.algorithm || 'No map' }}
           </span>
@@ -93,11 +75,11 @@
           </span>
         </div>
 
-        <div v-if="store.map" class="pg-tile-legend-anchor">
+        <div v-if="currentMap && !isSplitView" class="pg-tile-legend-anchor">
           <TileLegend />
         </div>
 
-        <div class="pg-floating-toolbar z-10">
+        <div v-if="!isSplitView" class="pg-floating-toolbar z-10">
           <button @click.stop="zoomIn" class="pg-toolbar-button">+</button>
           <button @click.stop="zoomOut" class="pg-toolbar-button">−</button>
           <button @click.stop="resetView" class="pg-toolbar-button">⊡</button>
@@ -126,6 +108,22 @@
         >
           Split
         </button>
+        <select
+          v-model="selectedComparisonMapId"
+          class="pg-compare-select"
+          :disabled="historyStore.items.length === 0"
+        >
+          <option value="">
+            {{ historyStore.items.length === 0 ? 'No maps to compare' : 'Compare map' }}
+          </option>
+          <option
+            v-for="item in historyStore.items"
+            :key="item.id"
+            :value="item.id"
+          >
+            {{ item.algorithmType }} · {{ item.seed }} · {{ item.width }}x{{ item.height }}
+          </option>
+        </select>
       </div>
 
       <div class="pg-table-surface">
@@ -190,13 +188,14 @@ import { getMapById } from "../api/mapApi";
 import MapControls from "../components/controls/MapControls.vue";
 import MapCanvas from "../components/map/MapCanvas.vue";
 import TileLegend from "../components/map/TileLegend.vue";
+import MapViewport from "../components/map/MapViewport.vue";
 
 const store = useMapStore();
 const historyStore = useHistoryStore();
 
 const overlayMode = ref(false);
-const selectedOverlayId = ref("");
-const selectedOverlayMap = ref(null);
+const selectedComparisonMapId = ref("");
+const comparisonMap = ref(null);
 const generationHistory = ref([]);
 const viewMode = ref("single");
 const scale = ref(1);
@@ -210,6 +209,9 @@ const transformStyle = computed(() => ({
   transform: `translate(${tx.value}px, ${ty.value}px) scale(${scale.value})`,
   transformOrigin: "0 0",
 }));
+
+const currentMap = computed(() => store.map);
+const isSplitView = computed(() => viewMode.value === "split");
 
 const onGenerate = async (payload) => {
   const startTime = performance.now();
@@ -228,14 +230,16 @@ const onGenerate = async (payload) => {
         size: `${payload.width}x${payload.height}`,
         status: "success",
       });
+
+      historyStore.fetch(historyStore.page);
     }
   } catch (error) {
     console.error(error);
   }
 };
 
-const loadOverlayMap = async (id) => {
-  selectedOverlayMap.value = null;
+const loadComparisonMap = async (id) => {
+  comparisonMap.value = null;
 
   if (!id) {
     return;
@@ -243,22 +247,18 @@ const loadOverlayMap = async (id) => {
 
   try {
     const response = await getMapById(id);
-    selectedOverlayMap.value = response.data;
+    comparisonMap.value = response.data;
   } catch (error) {
     console.error(error);
   }
 };
 
-watch(selectedOverlayId, (id) => {
-  loadOverlayMap(id);
+watch(selectedComparisonMapId, (id) => {
+  loadComparisonMap(id);
 });
 
 watch(viewMode, (mode) => {
   overlayMode.value = mode !== "single";
-
-  if (mode === "single") {
-    selectedOverlayId.value = "";
-  }
 });
 
 watch(overlayMode, (value) => {

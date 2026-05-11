@@ -87,7 +87,7 @@ public class MapGenerationRepositoryAdapter implements MapGenerationRepository {
 
     @Override
     public Page<MapGenerationEntity> findAll(Pageable pageable) {
-        return generationRepo.findAll(pageable);
+        return generationRepo.findAllByOrderByCreatedAtDesc(pageable);
     }
 
     private String serializeTiles(int[][] tiles) {

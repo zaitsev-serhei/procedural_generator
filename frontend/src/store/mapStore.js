@@ -13,6 +13,7 @@ export const useMapStore = defineStore("map", {
         tiles: map.tiles,
         rooms: map.rooms || [],
         connections: map.connections || [],
+        metadata: map.metadata || null,
       };
     },
     async generate(payload) {
@@ -28,6 +29,7 @@ export const useMapStore = defineStore("map", {
           tiles: res.data.tiles,
           rooms: res.data.rooms || [],
           connections: res.data.connections || [],
+          metadata: res.data.metadata || null,
         };
       } catch (e) {
         console.error(e);
